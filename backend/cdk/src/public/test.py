@@ -7,8 +7,6 @@ from handler import lambda_handler
 
 
 print(lambda_handler({'queryStringParameters':{
-    'lat':48.07,
-    'lng':11.51,
-    'range':2
+    'city':"Munich"
     }},{}))
 

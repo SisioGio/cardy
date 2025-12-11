@@ -1,7 +1,7 @@
 
 import os
 from sqlalchemy import create_engine, func, select
-from sqlalchemy.orm import sessionmaker,joinedload
+from sqlalchemy.orm import sessionmaker,joinedload,selectinload
 from dotenv import load_dotenv
 import os
 from shared.models.item import Item
@@ -27,11 +27,11 @@ DB_PORT = os.getenv("DB_PORT")
 
 DATABASE_URL = f'postgresql+pg8000://{DB_CREDENTIALS['username']}:{DB_CREDENTIALS['password']}@{DB_ENDPOINT}:{DB_PORT}/{DB_DATABASE}'
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine)
 
 
-DEFAULT_RANGE_KM = 0.1
+DEFAULT_RANGE_KM = 2
 MAX_RANGE_KM = 50
 
 
@@ -40,28 +40,42 @@ MAX_RANGE_KM = 50
 def lambda_handler(event, context):
     params = event.get("queryStringParameters") or {}
     
-    # lat = float(params.get("lat",48.08622))
-    # lng = float(params.get("lng", 11.54037))
-    # radius = min(float(params.get("range", DEFAULT_RANGE_KM)), MAX_RANGE_KM)
-    # print(f"Fetching for {lat},{lng} (radius: {radius})")
+    lat = float(params.get("lat",48.08622))
+    lng = float(params.get("lng", 11.54037))
+    radius = min(float(params.get("range", DEFAULT_RANGE_KM)), MAX_RANGE_KM)
+    print(f"Fetching for {lat},{lng} (radius: {radius})")
     session = SessionLocal()
     
-    
-    
-    
-    
-    city = params.get("city",'Munich')
-    # Base query with joinedload relationships
-    query = session.query(Location).options(
-        joinedload(Location.about),
-        joinedload(Location.working_hours),
-        joinedload(Location.other_hours),
-        joinedload(Location.items)
-    )
 
-    # --- Geolocation filter ---
+    city = params.get("city",None)
+
+
+    # Base query with joinedload relationships
+    query = (
+        session.query(Location)
+        .options(
+            selectinload(Location.about),
+            selectinload(Location.other_hours),
+            selectinload(Location.working_hours),
+            selectinload(Location.items),
+            
+        )
+    )
     
-    query = query.filter(Location.city.ilike(city))
+    # Filter by city if provided
+    if city:
+        query = query.filter(Location.city.ilike(f"%{city.strip()}%"))
+
+    # Filter by coordinates if provided and valid
+    if lat is not None and lng is not None:
+        distance_expr = 6371 * func.acos(
+            func.cos(func.radians(lat)) *
+            func.cos(func.radians(Location.latitude)) *
+            func.cos(func.radians(Location.longitude) - func.radians(lng)) +
+            func.sin(func.radians(lat)) *
+            func.sin(func.radians(Location.latitude))
+        )
+        query = query.filter(distance_expr <= radius)
 
     # --- Restaurant filters ---
     restaurant_filters = {
@@ -132,6 +146,8 @@ def lambda_handler(event, context):
                 query = query.filter(f(params[key]))
 
     query = query.distinct()
+    
+    
     locations = query.all()
 
     # --- Build JSON ---
