@@ -88,12 +88,12 @@ class CardyStack(Stack):
         )
         
         
-        shared_layer = _lambda.LayerVersion(
-            self, "SharedLayer",
-            code=_lambda.Code.from_asset("src/shared"),
-            compatible_runtimes=[_lambda.Runtime.PYTHON_3_12],
-            description="Shared Functions"
-        )
+        # shared_layer = _lambda.LayerVersion(
+        #     self, "SharedLayer",
+        #     code=_lambda.Code.from_asset("src/shared"),
+        #     compatible_runtimes=[_lambda.Runtime.PYTHON_3_12],
+        #     description="Shared Functions"
+        # )
         
         
         # # --- Lambda functions ---
@@ -123,7 +123,7 @@ class CardyStack(Stack):
             code=_lambda.Code.from_asset("src/public"),
             environment=global_env,
             role=shared_lambda_role,
-            layers=[utils_layer,shared_layer]
+            layers=[utils_layer]
         )
 
         # private_lambda = _lambda.Function(
