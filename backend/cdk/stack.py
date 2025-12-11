@@ -73,7 +73,9 @@ class CardyStack(Stack):
             "ACCESS_TOKEN_EXPIRATION":"3600",
             "APP_NAME":"Cardy",
             'RDS_SECRET_NAME':'rds!db-efc52989-89c8-4009-a2c3-e211a33ba1bd',
-            'DB_ENDPOINT':'cardy-dev.cb60yy2s4a4i.eu-central-1.rds.amazonaws.com'
+            'DB_ENDPOINT':'cardy-dev.cb60yy2s4a4i.eu-central-1.rds.amazonaws.com',
+            'DB_NAME':'postgres',
+            'DB_PORT':'5432'
             
         }
 
