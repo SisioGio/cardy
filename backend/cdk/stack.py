@@ -56,10 +56,11 @@ class CardyStack(Stack):
         )
         
         
-        
-            
+        # Import secrets
+        rds_secret = secretsmanager.Secret.from_secret_complete_arn(self, "JWTSecret", "arn:aws:secretsmanager:eu-central-1:495348364820:secret:rds!db-efc52989-89c8-4009-a2c3-e211a33ba1bd-MuKnTg")
+
         # Grant read access to secrets
-        for secret in [jwt_secret,jwt_refresh_secret]:
+        for secret in [jwt_secret,jwt_refresh_secret,rds_secret]:
             secret.grant_read(shared_lambda_role)
         
         
