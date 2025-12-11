@@ -22,6 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
+        working-directory: ./backend/cdk
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -35,6 +36,7 @@ jobs:
           aws-region: eu-central-1
 
       - name: Install AWS CDK
+        working-directory: ./backend/cdk
         run: npm install -g aws-cdk
         
       - name: CDK Deploy
