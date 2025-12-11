@@ -17,7 +17,7 @@ class CardyStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         def generate_name(name,env,type):
-            return f"{construct_id}-{name}-{env}-{type}"
+            return f"{name}-{env}-{type}"
         
         # Create one shared execution role
         shared_lambda_role = iam.Role(
@@ -83,6 +83,15 @@ class CardyStack(Stack):
             description="Shared utils"
         )
         
+        
+        shared_layer = _lambda.LayerVersion(
+            self, "SharedLayer",
+            code=_lambda.Code.from_asset("src/shared"),
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_12],
+            description="Shared Functions"
+        )
+        
+        
         # # --- Lambda functions ---
         authorizer_lambda = _lambda.Function(
             self, generate_name('authorizer', 'dev', 'lambda'),
@@ -110,7 +119,7 @@ class CardyStack(Stack):
             code=_lambda.Code.from_asset("src/public"),
             environment=global_env,
             role=shared_lambda_role,
-            layers=[utils_layer]
+            layers=[utils_layer,shared_layer]
         )
 
         # private_lambda = _lambda.Function(
