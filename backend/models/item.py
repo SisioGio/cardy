@@ -1,0 +1,45 @@
+from app import db
+from datetime import datetime
+
+class Item(db.Model):
+    __tablename__ = 'item'
+    __table_args__ = (
+        db.UniqueConstraint('name', 'location_id', 'menu_id', name='uq_item_cat_name_loc_menu'),
+    )
+    id = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    short_description = db.Column(db.Text)
+    full_description = db.Column(db.Text)
+    price = db.Column(db.Numeric(10,2))
+    currency = db.Column(db.String)
+    portion_size = db.Column(db.String)
+    cuisine_type = db.Column(db.String)
+    preparation_method = db.Column(db.String)
+    is_vegan = db.Column(db.Boolean, default=False)
+    is_vegetarian = db.Column(db.Boolean, default=False)
+    is_gluten_free = db.Column(db.Boolean, default=False)
+    is_dairy_free = db.Column(db.Boolean, default=False)
+    is_nut_free = db.Column(db.Boolean, default=False)
+    is_low_carb = db.Column(db.Boolean, default=False)
+    spiciness_level = db.Column(db.String)
+    special_notes = db.Column(db.Text)
+    calories = db.Column(db.Numeric(10,2))
+    proteins = db.Column(db.Numeric(10,2))
+    carbs = db.Column(db.Numeric(10,2))
+    fat = db.Column(db.Numeric(10,2))
+    fiber = db.Column(db.Numeric(10,2))
+    sugar = db.Column(db.Numeric(10,2))
+    sodium = db.Column(db.Numeric(10,2))
+    image = db.Column(db.String)
+    item_category_id = db.Column(db.String, db.ForeignKey('item_category.id'))
+    menu_id = db.Column(db.String, db.ForeignKey('menu.id'))
+    location_id = db.Column(db.String, db.ForeignKey('location.id', ondelete='CASCADE'))
+    option_groups_order = db.Column(db.ARRAY(db.String))
+    is_active = db.Column(db.Boolean, default=True)
+    pos_id = db.Column(db.Integer)
+    background_information = db.Column(db.JSON)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    ingredients = db.relationship("Ingredients", backref="item", lazy=True)
+    allergens = db.relationship("Allergens", backref="item", lazy=True)
