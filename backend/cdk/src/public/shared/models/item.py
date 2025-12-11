@@ -2,7 +2,8 @@ from .base import Base
 from datetime import datetime
 from sqlalchemy import Column, Integer, String,DateTime,UniqueConstraint,Text,Boolean,Numeric,ForeignKey,ARRAY,JSON
 from sqlalchemy.orm import relationship
-
+from .ingredients import Ingredients
+from .allergens import Allergens
 class Item(Base):
     __tablename__ = 'item'
     __table_args__ = (

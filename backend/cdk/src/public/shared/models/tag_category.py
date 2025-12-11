@@ -1,12 +1,14 @@
-from app import db
+from .base import Base
+from sqlalchemy import Column, Integer, String,DateTime,UniqueConstraint,Text,Boolean,Numeric,ForeignKey,ARRAY,JSON
+from sqlalchemy.orm import relationship
 from datetime import datetime
-
-class TagCategory(db.Model):
+from .tag import Tag
+class TagCategory(Base):
     __tablename__ = 'tag_category'
-    id = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    location_id = db.Column(db.String, db.ForeignKey('location.id', ondelete='CASCADE'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id = Column(String, primary_key=True)
+    name = Column(String, nullable=False)
+    location_id = Column(String, ForeignKey('location.id', ondelete='CASCADE'), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    tags = db.relationship("Tag", backref="tag_category", lazy=True)
+    tags = relationship("Tag", backref="tag_category", lazy=True)

@@ -1,10 +1,11 @@
-from app import db
-
-class LocationAbout(db.Model):
+from .base import Base
+from sqlalchemy import Column, Integer, String,DateTime,UniqueConstraint,Text,Boolean,Numeric,ForeignKey,ARRAY,JSON
+from sqlalchemy.orm import relationship
+class LocationAbout(Base):
     __tablename__ = 'location_about'
-    id = db.Column(db.String, primary_key=True)
-    location_id = db.Column(db.String, db.ForeignKey('location.id', ondelete='CASCADE'))
-    category = db.Column(db.String)
-    key = db.Column(db.String)
-    value = db.Column(db.Boolean)
+    id = Column(String, primary_key=True)
+    location_id = Column(String, ForeignKey('location.id', ondelete='CASCADE'))
+    category = Column(String)
+    key = Column(String)
+    value = Column(Boolean)
     
