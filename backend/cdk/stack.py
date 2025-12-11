@@ -17,7 +17,7 @@ class CardyStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
         def generate_name(name,env,type):
-            return f"{name}-{env}-{type}"
+            return f"cardy-{name}-{env}-{type}"
         
         # Create one shared execution role
         shared_lambda_role = iam.Role(
