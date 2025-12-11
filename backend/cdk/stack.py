@@ -71,7 +71,7 @@ class CardyStack(Stack):
             "FRONTEND_BASE_URL":"https://localhost:3000/",
             "JWT_EXPIRATION":"3600",
             "ACCESS_TOKEN_EXPIRATION":"3600",
-            "APP_NAME":"Cardy"
+            "APP_NAME":"Cardy",
             
         }
 
