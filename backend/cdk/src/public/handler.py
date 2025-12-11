@@ -16,7 +16,7 @@ DB_ENDPOINT=os.getenv("DB_ENDPOINT")
 DB_DATABASE = os.getenv("DB_NAME")
 DB_PORT = os.getenv("DB_PORT")
 
-DATABASE_URL = f'postgresql+psycopg2://{DB_CREDENTIALS['username']}:{DB_CREDENTIALS['password']}@{DB_ENDPOINT}:{DB_PORT}/{DB_DATABASE}'
+DATABASE_URL = f'postgresql+pg8000://{DB_CREDENTIALS['username']}:{DB_CREDENTIALS['password']}@{DB_ENDPOINT}:{DB_PORT}/{DB_DATABASE}'
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
