@@ -25,7 +25,7 @@ jobs:
 
       - name: Build React App
         working-directory: restaurant-menu-db
-        run: npm run build
+        run: CI=false npm run build
 
       - name: Sync Build to S3
         uses: jakejarvis/s3-sync-action@master
