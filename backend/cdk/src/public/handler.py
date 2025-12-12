@@ -132,12 +132,40 @@ def lambda_handler(event, context):
 
     # --- Menu items filters ---
     menu_item_filters = {
-        "item_name": lambda v: Item.name.ilike(f"%{v}%"),
-        "cuisine_type": lambda v: Item.cuisine_type.ilike(f"%{v}%"),
-        "price_min": lambda v: Item.price >= float(v),
-        "price_max": lambda v: Item.price <= float(v),
-        "is_vegan": lambda v: Item.is_vegan == (v.lower() == 'true'),
-        "is_vegetarian": lambda v: Item.is_vegetarian == (v.lower() == 'true'),
+        # string contains / ilike
+        "item_name":           lambda v: Item.name.ilike(f"%{v}%"),
+        "cuisine_type":        lambda v: Item.cuisine_type.ilike(f"%{v}%"),
+        "portion_size":        lambda v: Item.portion_size.ilike(f"%{v}%"),
+        "preparation_method":  lambda v: Item.preparation_method.ilike(f"%{v}%"),
+        "spiciness_level":     lambda v: Item.spiciness_level.ilike(f"%{v}%"),
+
+        # boolean equality (accepts "true"/"false" or actual booleans)
+        "is_vegan":            lambda v: Item.is_vegan == (str(v).lower() == "true"),
+        "is_vegetarian":       lambda v: Item.is_vegetarian == (str(v).lower() == "true"),
+        "is_gluten_free":      lambda v: Item.is_gluten_free == (str(v).lower() == "true"),
+        "is_dairy_free":       lambda v: Item.is_dairy_free == (str(v).lower() == "true"),
+        "is_low_carb":         lambda v: Item.is_low_carb == (str(v).lower() == "true"),
+        "is_nut_free":         lambda v: Item.is_nut_free == (str(v).lower() == "true"),
+
+        # price range (kept as in your original)
+        "price_min":           lambda v: Item.price >= float(v),
+        "price_max":           lambda v: Item.price <= float(v),
+
+        # nutrition / numeric ranges (min/max variants)
+        "calories_min":        lambda v: Item.calories >= float(v),
+        "calories_max":        lambda v: Item.calories <= float(v),
+        "carbs_min":           lambda v: Item.carbs >= float(v),
+        "carbs_max":           lambda v: Item.carbs <= float(v),
+        "proteins_min":        lambda v: Item.proteins >= float(v),
+        "proteins_max":        lambda v: Item.proteins <= float(v),
+        "fat_min":             lambda v: Item.fat >= float(v),
+        "fat_max":             lambda v: Item.fat <= float(v),
+        "fiber_min":           lambda v: Item.fiber >= float(v),
+        "fiber_max":           lambda v: Item.fiber <= float(v),
+        "sugar_min":           lambda v: Item.sugar >= float(v),
+        "sugar_max":           lambda v: Item.sugar <= float(v),
+        "sodium_min":          lambda v: Item.sodium >= float(v),
+        "sodium_max":          lambda v: Item.sodium <= float(v),
     }
     if any(k in params for k in menu_item_filters.keys()):
         query = query.join(Location.items)
