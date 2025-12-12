@@ -27,7 +27,7 @@ DB_PORT = os.getenv("DB_PORT")
 
 DATABASE_URL = f'postgresql+pg8000://{DB_CREDENTIALS['username']}:{DB_CREDENTIALS['password']}@{DB_ENDPOINT}:{DB_PORT}/{DB_DATABASE}'
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
 
@@ -35,6 +35,7 @@ DEFAULT_RANGE_KM = 2
 MAX_RANGE_KM = 50
 
 
+DEFAULT_PAGE_SIZE=10
 
 
 def lambda_handler(event, context):
@@ -175,9 +176,17 @@ def lambda_handler(event, context):
                 query = query.filter(f(params[key]))
 
     query = query.distinct()
+    # Find total rows
+    total = query.count()
     
-    
-    locations = query.all()
+    paginate = params.get("paginate",True)
+    page = params.get("page",1)
+    page_size = params.get("page_size",DEFAULT_PAGE_SIZE)
+    if paginate:
+        locations = query.offset((page - 1) * page_size).limit(page_size).all()
+    else:
+        locations = query.all()
+
 
     # --- Build JSON ---
     def time_to_str(t):
@@ -229,7 +238,7 @@ def lambda_handler(event, context):
         })
         
     options = get_options()
-    return generate_response(200,{'counter':len(output),'rows': output, 'options': options})
+    return generate_response(200,{'total':total,'page':page,'page_size':page_size,'total_pages':(total + page_size - 1) // page_size,'paginate':paginate,'rows': output, 'options': options})
  
 
 
@@ -272,7 +281,7 @@ def process_category(table,fields):
     table_options = {}
     session = SessionLocal()
     for key,object  in fields.items():
-        print(object)
+
         column = getattr(table, object['attribute'])
         if object['type'] == 'string':
             rows = session.query(distinct(column)).order_by(column).all()
