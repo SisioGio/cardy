@@ -38,12 +38,12 @@ jobs:
           AWS_REGION: ${{ secrets.APP_AWS_REGION }}
           SOURCE_DIR: restaurant-menu-db/build  # or build for CRA
 
-      - name: Invalidate CloudFront Cache (optional)
-        if: ${{ secrets.APP_CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        uses: chetan/invalidate-cloudfront-action@v2
-        env:
-          DISTRIBUTION: ${{ secrets.APP_CLOUDFRONT_DISTRIBUTION_ID }}
-          PATHS: "/*"
-          AWS_REGION: ${{ secrets.APP_AWS_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.APP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
+    #   - name: Invalidate CloudFront Cache (optional)
+        
+    #     uses: chetan/invalidate-cloudfront-action@v2
+    #     env:
+    #       DISTRIBUTION: ${{ secrets.APP_CLOUDFRONT_DISTRIBUTION_ID }}
+    #       PATHS: "/*"
+    #       AWS_REGION: ${{ secrets.APP_AWS_REGION }}
+    #       AWS_ACCESS_KEY_ID: ${{ secrets.APP_AWS_ACCESS_KEY_ID }}
+    #       AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
