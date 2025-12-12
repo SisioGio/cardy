@@ -1,0 +1,49 @@
+name: Deploy Restaurant Menu React App
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "restaurant-menu-db/**"   # Only run when this folder changes
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Dependencies
+        working-directory: restaurant-menu-db
+        run: npm install
+
+      - name: Build React App
+        working-directory: restaurant-menu-db
+        run: npm run build
+
+      - name: Sync Build to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.APP_AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.APP_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.APP_AWS_REGION }}
+          SOURCE_DIR: restaurant-menu-db/build  # or build for CRA
+
+      - name: Invalidate CloudFront Cache (optional)
+        if: ${{ secrets.APP_CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{ secrets.APP_CLOUDFRONT_DISTRIBUTION_ID }}
+          PATHS: "/*"
+          AWS_REGION: ${{ secrets.APP_AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.APP_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
