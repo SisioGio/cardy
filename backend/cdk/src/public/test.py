@@ -11,10 +11,10 @@ res=lambda_handler({'queryStringParameters':{
     'lng':11.52,
     'range':10,
     'rest_rating':5,
-    'page':1
+    'paginate':"false"
     }},{})
 
 print(json.loads(res['body'])['total'])
-
-print(json.loads(res['body']))
+print(json.loads(res['body'])['curr_total'])
+# print(json.loads(res['body']))
 

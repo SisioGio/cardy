@@ -180,9 +180,11 @@ def lambda_handler(event, context):
     total = query.count()
     
     paginate = params.get("paginate",True)
+    
+    paginate_bool = paginate.lower() == "true"
     page = params.get("page",1)
     page_size = params.get("page_size",DEFAULT_PAGE_SIZE)
-    if paginate:
+    if paginate_bool:
         locations = query.offset((page - 1) * page_size).limit(page_size).all()
     else:
         locations = query.all()
@@ -238,7 +240,7 @@ def lambda_handler(event, context):
         })
         
     options = get_options()
-    return generate_response(200,{'total':total,'page':page,'page_size':page_size,'total_pages':(total + page_size - 1) // page_size,'paginate':paginate,'rows': output, 'options': options})
+    return generate_response(200,{'total':total,'curr_total':len(output),'page':page,'page_size':page_size,'total_pages':(total + page_size - 1) // page_size,'paginate':paginate,'rows': output, 'options': options})
  
 
 
