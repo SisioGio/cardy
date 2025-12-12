@@ -80,7 +80,8 @@ def lambda_handler(event, context):
     # --- Restaurant filters ---
     restaurant_filters = {
         'rest_name': lambda v: Location.name.ilike(f"%{v}%"),
-        'rest_rating': lambda v: Location.rating >= float(v),
+        'rest_rating_min': lambda v: Location.rating >= float(v),
+        'rest_rating_max': lambda v: Location.rating <= float(v),
         'rest_price_range': lambda v: Location.price_range == int(v),
         'rest_type': lambda v: Location.type.ilike(f"%{v}%"),
         'rest_sub_type': lambda v: Location.subtypes.ilike(f"%{v}%")
@@ -228,7 +229,7 @@ def lambda_handler(event, context):
         })
         
     options = get_options()
-    return generate_response(200,{'rows': output, 'options': options,'counter':len(output)})
+    return generate_response(200,{'counter':len(output),'rows': output, 'options': options})
  
 
 
