@@ -1,6 +1,6 @@
 
 import os
-from sqlalchemy import create_engine, func, select
+from sqlalchemy import create_engine, func, select,distinct
 from sqlalchemy.orm import sessionmaker,joinedload,selectinload
 from dotenv import load_dotenv
 import os
@@ -10,7 +10,7 @@ from shared.models.location_about import LocationAbout
 from shared.models.location_other_hours import LocationOtherHours
 from shared.models.location_working_hours import LocationWorkingHours
 from decimal import Decimal
-
+from filters import *
 
 from utils import get_secret
 import json
@@ -226,7 +226,9 @@ def lambda_handler(event, context):
                 for item in loc.items
             ]
         })
-    return generate_response(200,{'rows': output, 'options': {},'counter':len(output)})
+        
+    options = get_options()
+    return generate_response(200,{'rows': output, 'options': options,'counter':len(output)})
  
 
 
@@ -262,3 +264,66 @@ class DynamoJSONEncoder(json.JSONEncoder):
             # Convert sets to lists for JSON serialization
             return list(obj)
         return super().default(obj)
+    
+    
+def process_category(table,fields):
+    
+    table_options = {}
+    session = SessionLocal()
+    for key,object  in fields.items():
+        print(object)
+        column = getattr(table, object['attribute'])
+        if object['type'] == 'string':
+            rows = session.query(distinct(column)).order_by(column).all()
+            
+            if len(rows) > 500:
+                table_options[key] = {
+                                    'options':[],
+                                    'min':None,
+                                    'max':None
+                }
+            else:
+                
+                values = []
+                for row in rows:
+                    v = row[0]
+                    if isinstance(v, (list, tuple)):       # array column
+                        values.extend(v)                   # flatten
+                    else:
+                        values.append(v)
+
+                # remove duplicates + sort
+                values = sorted(set(values))
+                table_options[key] = {
+                                        'options':values,
+                                        'min':None,
+                                        'max':None
+                                    }
+        elif object['type'] == 'time':
+            
+            continue
+        elif object['type'] == 'number':
+            max_value=  session.query(func.max(column)).scalar()
+            min_value=session.query(func.min(column)).scalar()
+            table_options[key] = {
+                                    'options':[],
+                                    'min':min_value,
+                                    'max':max_value
+                                }
+
+    return table_options
+            
+
+def get_options():
+    
+    all_filters= {}
+    
+    restaurant = process_category(Location,restaurant_filters)
+    all_filters.update(restaurant)
+    
+    services = process_category(LocationAbout,services_filters)
+    all_filters.update(services)
+    
+    menu_items = process_category(Item,menu_item_filters)
+    all_filters.update(menu_items)
+    return all_filters
