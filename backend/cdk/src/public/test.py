@@ -10,8 +10,11 @@ res=lambda_handler({'queryStringParameters':{
     'lat':48.07,
     'lng':11.52,
     'range':10,
-    'rest_rating':5,
-    'paginate':"false"
+ 
+    'paginate':"true",
+    'page':"1",
+    'page_size':"5"
+    
     }},{})
 
 print(json.loads(res['body'])['total'])
