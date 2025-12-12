@@ -226,12 +226,8 @@ def lambda_handler(event, context):
                 for item in loc.items
             ]
         })
-
-    return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({'rows': convert_decimals(output), 'options': {},'counter':len(output)})
-    }
+    return generate_response(200,{'rows': output, 'options': {},'counter':len(output)})
+ 
 
 
 def convert_decimals(obj):
@@ -243,3 +239,26 @@ def convert_decimals(obj):
         return float(obj)
     else:
         return obj
+    
+    
+def generate_response(statusCode,message):
+    return {
+        'statusCode': statusCode,
+        'headers': {
+                            'Access-Control-Allow-Headers': 'Content-Type',
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+                        },
+        'body': json.dumps(message, cls=DynamoJSONEncoder)
+    }
+    
+
+class DynamoJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            # Convert to float or int depending on value
+            return int(obj) if obj % 1 == 0 else float(obj)
+        elif isinstance(obj, set):
+            # Convert sets to lists for JSON serialization
+            return list(obj)
+        return super().default(obj)
